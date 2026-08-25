@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">InkPocket logo</title>
+  <desc id="desc">A monochrome e-paper reader with an ink drop.</desc>
+  <rect x="78" y="36" width="356" height="440" rx="44" fill="#111827"/>
+  <rect x="108" y="70" width="296" height="328" rx="20" fill="#f8fafc"/>
+  <path d="M256 126c-48 65-76 105-76 145a76 76 0 1 0 152 0c0-40-28-80-76-145Z" fill="#111827"/>
+  <path d="M220 289c12 22 35 30 57 20" fill="none" stroke="#f8fafc" stroke-width="14" stroke-linecap="round"/>
+  <rect x="184" y="423" width="144" height="18" rx="9" fill="#f8fafc"/>
+</svg>

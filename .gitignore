@@ -1,0 +1,9 @@
+build/
+build-*/
+compile.log
+compile.err
+*.bin
+Secrets.h
+.vscode/
+.idea/
+*.code-workspace
