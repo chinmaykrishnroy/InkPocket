@@ -173,3 +173,4 @@ class StagedFileWriter {
     return false;
   }
 };
+

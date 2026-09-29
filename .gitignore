@@ -4,6 +4,7 @@ compile.log
 compile.err
 *.bin
 Secrets.h
+.password
 .vscode/
 .idea/
 *.code-workspace

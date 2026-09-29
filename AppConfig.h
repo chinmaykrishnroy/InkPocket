@@ -14,3 +14,4 @@ struct DeviceSettings {
   bool saver = true;
   int16_t utc = 330;
 };
+

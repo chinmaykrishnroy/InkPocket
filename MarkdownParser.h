@@ -122,6 +122,26 @@ class MarkdownParser {
       }
     }
 
+    void preprocessOutsideCode(String &str) {
+      String result;
+      result.reserve(str.length());
+      bool code = false;
+      int start = 0;
+      for (int i = 0; i <= str.length(); i++) {
+        if (i == str.length() || str[i] == '`') {
+          String segment = str.substring(start, i);
+          if (!code) {
+            convertHTMLtoMarkdown(segment);
+            cleanLinksAndImages(segment);
+          }
+          result += segment;
+          if (i < str.length()) { result += '`'; code = !code; }
+          start = i + 1;
+        }
+      }
+      str = result;
+    }
+
     void setInlineFont() {
       if (headerLevel == 1 || headerLevel == 2) tft->setFont(&FreeSerifBold12pt7b);
       else if (headerLevel == 3) tft->setFont(&FreeSerifBold9pt7b);
@@ -212,7 +232,10 @@ class MarkdownParser {
       for (int i = 0; i < text.length(); i++) {
         char c = text[i];
         
-        if (c == '\\' && i + 1 < text.length()) {
+        if (isInlineCode && c != '`') {
+          buffer += c;
+        }
+        else if (c == '\\' && i + 1 < text.length()) {
             buffer += text[i+1];
             i++; 
         }
@@ -295,8 +318,10 @@ class MarkdownParser {
 
     bool scrollDown(int amount) {
       int maximum = max(0, documentHeight - tft->height() + 24);
-      if (!moreContent && scrollY >= maximum) return false;
-      scrollY = moreContent ? scrollY + amount : min(maximum, scrollY + amount);
+      if (scrollY >= maximum) return false;
+      int next = min(maximum, scrollY + amount);
+      if (next <= scrollY) return false;
+      scrollY = next;
       return true;
     }
 
@@ -313,7 +338,13 @@ class MarkdownParser {
       return cursorY - scrollY > tft->height() + extraPixels;
     }
 
-    void setMoreContent(bool value) { moreContent = value; }
+    void setMoreContent(bool value) {
+      moreContent = value;
+      if (!moreContent) {
+        int maximum = max(0, documentHeight - tft->height() + 24);
+        if (scrollY > maximum) scrollY = maximum;
+      }
+    }
     
     void setTopOffset(int extraPixels) {
         marginY = 5 + extraPixels;
@@ -340,8 +371,7 @@ class MarkdownParser {
       }
 
       if (!inCodeBlock && !trimmedLine.startsWith("```")) {
-        convertHTMLtoMarkdown(line);
-        cleanLinksAndImages(line);
+        preprocessOutsideCode(line);
       }
 
       isBold = false;
@@ -731,3 +761,4 @@ class MarkdownParser {
 };
 
 #endif
+

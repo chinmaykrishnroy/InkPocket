@@ -49,3 +49,4 @@ constexpr Remote NONE = Remote::Empty;
 constexpr Remote TEXT = Remote::Text;
 constexpr Remote MARKDOWN = Remote::Markdown;
 constexpr Remote BITMAP = Remote::Bitmap;
+

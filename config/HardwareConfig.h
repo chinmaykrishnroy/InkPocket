@@ -22,6 +22,8 @@ constexpr uint8_t kMaxBitmapFiles = 5;
 
 // Short names retain compatibility with the existing firmware modules.
 using InkPocket::Hardware::kButtonPin;
+using InkPocket::Hardware::kDisplaySck;
+using InkPocket::Hardware::kDisplayMosi;
 using InkPocket::Hardware::kDisplayCs;
 using InkPocket::Hardware::kDisplayDc;
 using InkPocket::Hardware::kDisplayReset;

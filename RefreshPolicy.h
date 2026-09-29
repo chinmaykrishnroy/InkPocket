@@ -31,16 +31,19 @@ struct RefreshPolicy {
       y = top;
       right = nextRight;
       bottom = nextBottom;
+      automatic = isAutomatic;
     } else {
       x = min(x, left);
       y = min(y, top);
       right = max(right, nextRight);
       bottom = max(bottom, nextBottom);
+      // Any manual update makes the merged refresh manual for ghosting accounting.
+      automatic = automatic && isAutomatic;
     }
-    automatic = automatic || isAutomatic;
   }
 
   int16_t width() const { return right - x; }
   int16_t height() const { return bottom - y; }
 };
+
 

@@ -52,13 +52,18 @@ inline bool inspect(File& file, Info& info) {
   info.height = absoluteHeight;
   info.bottomUp = signedHeight > 0;
   info.rowBytes = ((info.width + 31) / 32) * 4;
-  if (info.rowBytes > 260 || info.pixelOffset < 14 + dibSize + 8 ||
-      info.pixelOffset + (uint64_t)info.rowBytes * info.height > file.size()) {
+  const uint64_t fileSize = file.size();
+  const uint64_t dibEnd = 14ULL + (uint64_t)dibSize;
+  const uint64_t paletteEnd = dibEnd + 8ULL;
+  const uint64_t pixelEnd = (uint64_t)info.pixelOffset +
+                            (uint64_t)info.rowBytes * (uint64_t)info.height;
+  if (info.rowBytes > 260 || dibEnd > fileSize || paletteEnd > fileSize ||
+      (uint64_t)info.pixelOffset < paletteEnd || pixelEnd > fileSize) {
     return false;
   }
 
   uint8_t palette[8];
-  if (!file.seek(14 + dibSize) ||
+  if (!file.seek((uint32_t)dibEnd) ||
       file.read(palette, sizeof(palette)) != (int)sizeof(palette)) {
     return false;
   }
@@ -140,3 +145,4 @@ bool draw(fs::FS& storage, Display& display, const String& path,
 }
 
 }  // namespace MonoBmp
+

@@ -497,3 +497,4 @@ constexpr uint8_t kTestBmp[] PROGMEM = {
 };
 constexpr size_t kTestBmpSize = sizeof(kTestBmp);
 constexpr uint8_t kBundledAssetVersion = 2;
+

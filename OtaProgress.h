@@ -36,3 +36,4 @@ struct OtaProgressState {
     return total ? percent() / 5 : min(255UL, written / 16384UL);
   }
 };
+

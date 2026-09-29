@@ -35,10 +35,12 @@ battery links, and the [hardware reference](docs/HARDWARE.md) for wiring.
 | 1.54-inch WeAct/D67 SPI e-paper panel (200×200, black/white) | Yes |
 | Single-cell 3.7 V LiPo battery | Optional, for portable use |
 
-All pins and display limits are centralized in
-[`config/HardwareConfig.h`](config/HardwareConfig.h). Copy
+Hardware-profile pins and safety limits are centralized in
+[`config/HardwareConfig.h`](config/HardwareConfig.h). The UI remains designed for
+the current 200×200 panel. Copy
 [`Secrets.example.h`](Secrets.example.h) to `Secrets.h` and add optional
-default station credentials. `Secrets.h` is ignored by Git.
+default station credentials and a unique `kApiKey` (at least 8 characters).
+`Secrets.h` is ignored by Git.
 
 ## Wiring
 
@@ -61,16 +63,16 @@ light-sleep workflow but not ESP32-C3 RTC deep-sleep wake; see
 1. Install Arduino IDE 2.x or Arduino CLI, the ESP32 board package, and the
    `GxEPD2` library.
 2. Clone this repository and copy `Secrets.example.h` to `Secrets.h`.
-3. Build using the `min_spiffs` partition scheme:
+3. Build using the default partition scheme (large enough for the documented LittleFS payload limits):
 
    ```powershell
-   arduino-cli compile --fqbn esp32:esp32:XIAO_ESP32C3:PartitionScheme=min_spiffs --build-path build-ota .\
+   arduino-cli compile --fqbn esp32:esp32:XIAO_ESP32C3:PartitionScheme=default --build-path build-ota .\
    ```
 
 4. Upload over USB:
 
    ```powershell
-   arduino-cli upload -p COM6 --fqbn esp32:esp32:XIAO_ESP32C3:PartitionScheme=min_spiffs .\
+   arduino-cli upload -p COM6 --fqbn esp32:esp32:XIAO_ESP32C3:PartitionScheme=default .\
    ```
 
 Full development, USB, and OTA commands are in
@@ -131,8 +133,8 @@ Wi-Fi must be active. All endpoints use the device IP, for example
 | `POST` | `/api/v1/screen/bmp` | Show an uncompressed 1-bit BMP |
 | `POST` | `/api/ota?size=BYTES` | Install a firmware binary |
 
-Raw text and Markdown requests use headers for positioning because the body is
-streamed before query parameters are parsed:
+Raw text requests can use positioning headers. Markdown is rendered with the normal
+full-screen reader layout. Normal-LAN API requests also require `X-InkPocket-Key`:
 
 ```powershell
 $message = @'
@@ -144,6 +146,7 @@ This is plain text with real line breaks.
 $message | curl.exe -X POST -H "Content-Type: text/plain" `
   -H "X-InkPocket-X: 12" -H "X-InkPocket-Y: 36" `
   -H "X-InkPocket-W: 176" -H "X-InkPocket-H: 128" `
+  -H "X-InkPocket-Key: YOUR_ACCESS_KEY" `
   --data-binary "@-" "http://DEVICE_IP/api/v1/screen/text"
 ```
 
@@ -162,7 +165,7 @@ curl.exe -X POST -F "file=@image.bmp" `
 Build a binary, start Wi-Fi on InkPocket, then run:
 
 ```powershell
-$bin = ".\build-ota\E_Reader.ino.bin"
+$bin = ".\build-ota\InkPocket.ino.bin"
 $size = (Get-Item -LiteralPath $bin).Length
 curl.exe -F "firmware=@$bin" "http://DEVICE_IP/api/ota?size=$size"
 ```
@@ -195,3 +198,14 @@ Please keep modules focused, document user-visible behavior and API changes,
 compile for the XIAO ESP32-C3 before opening a pull request, and never commit
 credentials, build output, or firmware binaries. See
 [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+
+## Security / access key
+
+Normal LAN API control, HTTP OTA, and ArduinoOTA require `kApiKey` from
+`Secrets.h`. The randomly-passworded setup AP is allowed to configure Wi-Fi
+without the API key so a new device can be provisioned. The web UI stores the
+key only for the current browser tab (`sessionStorage`).
+
+The default partition scheme is used so the documented text/API payload limit can
+fit in LittleFS. Internal remote-display scratch files are hidden from the user
+library and are cleaned when the remote content type changes.
